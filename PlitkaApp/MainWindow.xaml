@@ -55,7 +55,7 @@
             </Button.ToolTip>
         </Button>
         <Button x:Name="Rotation" Width="32" Height="32" Margin="16,255,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
-            Rotation
+            <Image Width="22" Height="24" Source="Assets/rotate.png" Stretch="Fill"/>
         </Button>
         <Button x:Name="Delete" Width="32" Height="32" Margin="16,295,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
             Delete
@@ -69,6 +69,7 @@
         <Button x:Name="Color" Width="32" Height="32" Margin="16,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
             Color
         </Button>
+        
 
         <TabControl HorizontalAlignment="Stretch" Margin="64,0,0,0">
             <TabItem Height="43" Width="110">
