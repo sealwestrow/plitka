@@ -1,0 +1,88 @@
+﻿<Window x:Class="PlitkaApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PlitkaApp"
+        mc:Ignorable="d"
+        Title="plitka" Height="450" Width="800">
+
+    <Grid Background="#FFB9B9B9">
+        <Menu Height="46" Width="64" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <MenuItem Header="Файл" Height="46" Width="64" Padding="16, 0, 0, 0" Background="#3D3D3D" Foreground="White" BorderThickness="0">
+                <MenuItem Header="New Project" Background="#232323"></MenuItem>
+                <MenuItem Header="Open Project" Background="#232323">
+                    <MenuItem Header="WinForms" Click="ShowHello" Background="#232323"></MenuItem>
+                </MenuItem>
+                <MenuItem Header="Save" Background="#232323"></MenuItem>
+                <MenuItem Header="Exit" Background="#232323"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <Border BorderThickness="0,0.5,0.5,0" BorderBrush="White">
+            <Rectangle  Width="64" HorizontalAlignment="Left" Fill="#5A5A5A" Margin="0,46,0,0"/>
+        </Border>
+       
+        <Button x:Name="Rectangle" Width="32" Height="32" Margin="16,95,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            <Image Width="22" Height="22" Source="Assets/Rectangle.png" Stretch="Fill"/>
+            <Button.ToolTip>
+                <ToolTip>
+                    Квадратная плитка
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="Triangle" Width="32" Height="32" Margin="16,135,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            <Image Width="28" Height="24" Source="Assets/Triangle.png" Stretch="Fill"/>
+            <Button.ToolTip>
+                <ToolTip>
+                    Треугольньная плитка
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="Hexagon" Width="32" Height="32" Margin="16,175,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            <Image Width="24" Height="26" Source="Assets/Hexagon.png" Stretch="Fill"/>
+            <Button.ToolTip>
+                <ToolTip>
+                    Шестиугольная плитка
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="Octagon" Width="32" Height="32" Margin="16,215,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            <Image Width="24" Height="24" Source="Assets/Octagon.png" Stretch="Fill"/>
+            <Button.ToolTip>
+                <ToolTip>
+                    Восьмиугольная плитка
+                </ToolTip>
+            </Button.ToolTip>
+        </Button>
+        <Button x:Name="Rotation" Width="32" Height="32" Margin="16,255,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            Rotation
+        </Button>
+        <Button x:Name="Delete" Width="32" Height="32" Margin="16,295,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            Delete
+        </Button>
+        <Button x:Name="Group" Width="32" Height="32" Margin="16,335,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            Group
+        </Button>
+        <Button x:Name="Copy" Width="32" Height="32" Margin="16,335,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            Copy
+        </Button>
+        <Button x:Name="Color" Width="32" Height="32" Margin="16,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+            Color
+        </Button>
+
+        <TabControl HorizontalAlignment="Stretch" Margin="64,0,0,0">
+            <TabItem Height="43" Width="110">
+                <TabItem.Header>
+                    <Label Width="71" HorizontalContentAlignment="Left" Padding="0" HorizontalAlignment="Left" Margin="-20,0,0,0">Вкладка 1</Label>
+                </TabItem.Header>
+            </TabItem>
+            <TabItem Height="43" Width="110">
+                <TabItem.Header>
+                    <Label Height="43" Width="90" Margin="-18,-1,0,0" Padding="7,14,0,0">Вкладка 2</Label>
+                </TabItem.Header>
+            </TabItem>
+        </TabControl>
+
+
+    </Grid>
+</Window>
