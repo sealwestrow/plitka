@@ -79,7 +79,13 @@ namespace PlitkaApp
 
         #endregion
 
-        
+
+        private void OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Polygon ffElement = (Polygon)sender;
+            ffElement.StrokeThickness = 5;
+        }
+
         private void CopyF_Click(object sender, RoutedEventArgs e)
         {
             MenuItem mi = sender as MenuItem;
@@ -88,23 +94,40 @@ namespace PlitkaApp
                 ContextMenu cm = mi.CommandParameter as ContextMenu;
                 if (cm != null)
                 {
-                    var element = cm.PlacementTarget as UIElement;
+                    var element = cm.PlacementTarget as Polygon;
                     if (element != null)
                     {
-                        //int indexF = Canv.Children.IndexOf(element);
+                        var newel = new Polygon();
+                        foreach(var p in element.Points)
+                        {
+                            newel.Points.Add(p);
+                        }
 
-                        //попытки копирования
-                        //Polygon newel = (Polygon)Canv.Children[indexF];
-                        //Canv.Children.Remove(element);
-                        //Canv.Children.Add(newel);
-                        //Canv.Children.Add(element);
+                        newel.Fill = element.Fill;
+                        newel.Stroke = Brushes.Black;
+                        newel.MouseLeftButtonDown += FF_MouseLeftButtonDown;
+                        newel.MouseLeftButtonUp += FF_MouseLeftButtonUp;
+                        newel.MouseMove += FF_MouseMove;
+
+                        newel.MouseRightButtonDown += OnMouseRightButtonDown;
 
 
+                        Canv.Children.Add(newel);
+                        Canvas.SetLeft(newel, 1);
+                        Canvas.SetTop(newel, 1);
+
+                        newel.ContextMenu = ConMenu;
+                        newel.RenderTransformOrigin = new Point(0.5, 0.5);
                     }
-
                 }
             }
-            
+
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var UIElement = (Polygon)Canv.Children[i];
+                UIElement.StrokeThickness = 1;
+                Canv.Children[i] = UIElement;
+            }
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
@@ -138,6 +161,13 @@ namespace PlitkaApp
 
                 }
             }
+
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var UIElement = (Polygon)Canv.Children[i];
+                UIElement.StrokeThickness = 1;
+                Canv.Children[i] = UIElement;
+            }
         }
 
         private void SwapColor_Click(object sender, RoutedEventArgs e)
@@ -161,8 +191,12 @@ namespace PlitkaApp
                 }
             }
 
-            
-
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var UIElement = (Polygon)Canv.Children[i];
+                UIElement.StrokeThickness = 1;
+                Canv.Children[i] = UIElement;
+            }
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -178,17 +212,17 @@ namespace PlitkaApp
             }
         }
 
-        private void Open_Click(object sender, RoutedEventArgs e)
-        {
-            SaveFileDialog sfd = new SaveFileDialog();
-            if (sfd.ShowDialog() == true)
-            {
-                if (sfd.FileName != "")
-                {
+        //private void Open_Click(object sender, RoutedEventArgs e)
+        //{
+        //    SaveFileDialog sfd = new SaveFileDialog();
+        //    if (sfd.ShowDialog() == true)
+        //    {
+        //        if (sfd.FileName != "")
+        //        {
                     
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
 
         private static void ToImageSource(Canvas canvas, string filename)
         {
@@ -214,6 +248,8 @@ namespace PlitkaApp
             Rectangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Rectangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
             Rectangle.MouseMove += FF_MouseMove;
+
+            Rectangle.MouseRightButtonDown += OnMouseRightButtonDown;
             
 
             Canv.Children.Add(Rectangle);
@@ -235,6 +271,7 @@ namespace PlitkaApp
             Triangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
             Triangle.MouseMove += FF_MouseMove;
 
+            Triangle.MouseRightButtonDown += OnMouseRightButtonDown;
 
             Canv.Children.Add(Triangle);
             Canvas.SetLeft(Triangle, 1);
@@ -255,6 +292,8 @@ namespace PlitkaApp
             Hexagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
             Hexagon.MouseMove += FF_MouseMove;
 
+            Hexagon.MouseRightButtonDown += OnMouseRightButtonDown;
+
 
             Canv.Children.Add(Hexagon);
             Canvas.SetLeft(Hexagon, 1);
@@ -274,6 +313,8 @@ namespace PlitkaApp
             Octagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Octagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
             Octagon.MouseMove += FF_MouseMove;
+
+            Octagon.MouseRightButtonDown += OnMouseRightButtonDown;
 
 
             Canv.Children.Add(Octagon);
