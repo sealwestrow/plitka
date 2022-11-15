@@ -88,7 +88,7 @@
         </TabControl>
 
 
-        <Grid Margin="16,384,752,10">
+        <Grid Margin="15,384,752,10">
             <Grid.ContextMenu>
                 <ContextMenu Name ="ConMenu" >
                     <MenuItem Header = "Копировать" Click="CopyF_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
