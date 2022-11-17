@@ -238,6 +238,7 @@ namespace PlitkaApp
             }
         }
 
+
         private void Rectangle_Click(object sender, RoutedEventArgs e)
         {
             var Rectangle = new Polygon();
