@@ -324,5 +324,15 @@ namespace PlitkaApp
             Octagon.ContextMenu = ConMenu;
             Octagon.RenderTransformOrigin = new Point(0.5, 0.5);
         }
+        private void OnCanvasClick(object sender, MouseButtonEventArgs e)
+        {
+
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var p=  Canv.Children[i] as Polygon;
+                p.StrokeThickness = 1;
+                Canv.Children[i] = p as UIElement;
+            }
+        }
     }
 }
