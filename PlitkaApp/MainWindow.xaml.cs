@@ -38,6 +38,7 @@ namespace PlitkaApp
         int countZ = 0;
         bool _canMove = false;
         Point _offsetPoint = new Point(0, 0);
+        Point posCursor = new Point(0, 0);
         private void FF_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _canMove = true;
@@ -48,8 +49,7 @@ namespace PlitkaApp
             Grid.SetZIndex(ffElement, countZ);
 
 
-            Point posCursor = e.MouseDevice.GetPosition(this);
-            _offsetPoint = new Point(posCursor.X - Canvas.GetLeft(ffElement), posCursor.Y - Canvas.GetTop(ffElement));
+            posCursor = e.MouseDevice.GetPosition(this);
             e.MouseDevice.Capture(ffElement);
         }
 
@@ -58,14 +58,43 @@ namespace PlitkaApp
             if (_canMove == true)
             {
                 FrameworkElement ffElement = (FrameworkElement)sender;
+                Polygon poly = (Polygon)sender;
+                var c = Canv;
+
+                var leftPoint = double.MaxValue;
+                var rightPoint = double.MinValue;
+                var topPoint = double.MaxValue;
+                var bottomPoint = double.MinValue;
+                for (int i = 0; i < poly.Points.Count; i++)
+                {
+                    var point = poly.Points[i];
+
+                    if (point.X < leftPoint)
+                        leftPoint = point.X;
+                    if (point.X > rightPoint)
+                        rightPoint = point.X;
+                    if (point.Y < topPoint)
+                        topPoint = point.Y;
+                    if (point.Y > bottomPoint)
+                        bottomPoint = point.Y;
+                }
+
+                bool allowMoving = (leftPoint + 1) > 0 && (rightPoint + 1) < Canv.ActualWidth && (topPoint + 1) > 0 && (bottomPoint + 1) < Canv.ActualHeight;
 
                 if (e.MouseDevice.Captured == ffElement)
                 {
                     Point p = e.MouseDevice.GetPosition(this);
-                    Canvas.SetLeft(ffElement, p.X - _offsetPoint.X);
-                    Canvas.SetTop(ffElement, p.Y - _offsetPoint.Y);
-                    
+                    var px = p.X - posCursor.X;
+                    var py = p.Y - posCursor.Y;
 
+                    if ((leftPoint + 1) + px > 0 && (rightPoint + 1) + px < Canv.ActualWidth && (topPoint + 1) + py > 0 && (bottomPoint + 1) + py < Canv.ActualHeight)
+                    {
+                        for (int i = 0; i < poly.Points.Count; i++)
+                        {
+                            poly.Points[i] = new Point(poly.Points[i].X + px, poly.Points[i].Y + py);
+                        }
+                        posCursor = e.MouseDevice.GetPosition(this);
+                    }
                 }
             }
         }
@@ -207,16 +236,32 @@ namespace PlitkaApp
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();
-            sfd.DefaultExt = ".png";
             if(sfd.ShowDialog() == true)
             {
                 if(sfd.FileName != "")
                 {
-                    ToImageSource(Canv, sfd.FileName);
+                    ToImageSource(Canv, sfd.FileName + ".png");
+                    ToTextSource(Canv, sfd.FileName + ".txt");
                 }
             }
         }
 
+        private void ToTextSource(Canvas c, string fileName)
+        {
+            using (var sw = new StreamWriter(fileName))
+            {
+                for (int i = 0; i < Canv.Children.Count; i++)
+                {
+                    var polygon = Canv.Children[i] as Polygon;
+                    foreach (var p in polygon.Points)
+                    {
+                        sw.Write("{0} {1};", p.X, p.Y);
+                    }
+                    sw.Write(polygon.Fill.ToString());
+                    sw.WriteLine();
+                }
+            }
+        }
         //private void Open_Click(object sender, RoutedEventArgs e)
         //{
         //    SaveFileDialog sfd = new SaveFileDialog();
@@ -246,24 +291,18 @@ namespace PlitkaApp
         private void Rectangle_Click(object sender, RoutedEventArgs e)
         {
             var Rectangle = new Polygon();
-            Rectangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0,100) };
+            Rectangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100) };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            if(bs.ToString() == "#00FFFFFF")
-            {
-                Rectangle.Fill = Brushes.White;
-            }
-            else Rectangle.Fill = bs;
+            Rectangle.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
             Rectangle.Stroke = Brushes.Black;
             Rectangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Rectangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
             Rectangle.MouseMove += FF_MouseMove;
-
             Rectangle.MouseRightButtonDown += OnMouseRightButtonDown;
-            
 
             Canv.Children.Add(Rectangle);
-            Canvas.SetLeft(Rectangle, 10);
-            Canvas.SetTop(Rectangle, 10);
+            Canvas.SetLeft(Rectangle, 1);
+            Canvas.SetTop(Rectangle, 1);
 
             Rectangle.ContextMenu = ConMenu;
             Rectangle.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -274,11 +313,7 @@ namespace PlitkaApp
             var Triangle = new Polygon();
             Triangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(50, 86.6) };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            if (bs.ToString() == "#00FFFFFF")
-            {
-                Triangle.Fill = Brushes.White;
-            }
-            else Triangle.Fill = bs;
+            Triangle.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
             Triangle.Stroke = Brushes.Black;
             Triangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Triangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
@@ -299,11 +334,7 @@ namespace PlitkaApp
             var Hexagon = new Polygon();
             Hexagon.Points = new PointCollection() { new Point(0,50), new Point(0, 150), new Point(86.6,200), new Point(173.21,150), new Point(173.21, 50), new Point(86.6,0) };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            if (bs.ToString() == "#00FFFFFF")
-            {
-                Hexagon.Fill = Brushes.White;
-            }
-            else Hexagon.Fill = bs;
+            Hexagon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
             Hexagon.Stroke = Brushes.Black;
             Hexagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Hexagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
@@ -325,11 +356,7 @@ namespace PlitkaApp
             var Octagon = new Polygon();
             Octagon.Points = new PointCollection() { new Point(0, 100), new Point(0, 200), new Point(70.71,270.71), new Point(170.71, 270.71), new Point(241.42, 200), new Point(241.42, 100), new Point(170.71,29.29), new Point(70.71, 29.29)  };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            if (bs.ToString() == "#00FFFFFF")
-            {
-                Octagon.Fill = Brushes.White;
-            }
-            else Octagon.Fill = bs;
+            Octagon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
             Octagon.Stroke = Brushes.Black;
             Octagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Octagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
