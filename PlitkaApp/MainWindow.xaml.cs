@@ -33,8 +33,6 @@ namespace PlitkaApp
             MessageBox.Show("Hello");
         }
 
-        
-
         #region Функция перемещения элементов
 
         int countZ = 0;
@@ -66,6 +64,7 @@ namespace PlitkaApp
                     Point p = e.MouseDevice.GetPosition(this);
                     Canvas.SetLeft(ffElement, p.X - _offsetPoint.X);
                     Canvas.SetTop(ffElement, p.Y - _offsetPoint.Y);
+                    
 
                 }
             }
@@ -142,6 +141,12 @@ namespace PlitkaApp
                     Canv.Children.Remove(element); 
 
                 }
+            }
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var UIElement = (Polygon)Canv.Children[i];
+                UIElement.StrokeThickness = 1;
+                Canv.Children[i] = UIElement;
             }
         }
 
@@ -238,13 +243,16 @@ namespace PlitkaApp
             }
         }
 
-
         private void Rectangle_Click(object sender, RoutedEventArgs e)
         {
             var Rectangle = new Polygon();
             Rectangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0,100) };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Rectangle.Fill = bs;
+            if(bs.ToString() == "#00FFFFFF")
+            {
+                Rectangle.Fill = Brushes.White;
+            }
+            else Rectangle.Fill = bs;
             Rectangle.Stroke = Brushes.Black;
             Rectangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Rectangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
@@ -254,8 +262,8 @@ namespace PlitkaApp
             
 
             Canv.Children.Add(Rectangle);
-            Canvas.SetLeft(Rectangle, 1);
-            Canvas.SetTop(Rectangle, 1);
+            Canvas.SetLeft(Rectangle, 10);
+            Canvas.SetTop(Rectangle, 10);
 
             Rectangle.ContextMenu = ConMenu;
             Rectangle.RenderTransformOrigin = new Point(0.5, 0.5);
@@ -266,7 +274,11 @@ namespace PlitkaApp
             var Triangle = new Polygon();
             Triangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(50, 86.6) };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Triangle.Fill = bs;
+            if (bs.ToString() == "#00FFFFFF")
+            {
+                Triangle.Fill = Brushes.White;
+            }
+            else Triangle.Fill = bs;
             Triangle.Stroke = Brushes.Black;
             Triangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Triangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
@@ -287,7 +299,11 @@ namespace PlitkaApp
             var Hexagon = new Polygon();
             Hexagon.Points = new PointCollection() { new Point(0,50), new Point(0, 150), new Point(86.6,200), new Point(173.21,150), new Point(173.21, 50), new Point(86.6,0) };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Hexagon.Fill = bs;
+            if (bs.ToString() == "#00FFFFFF")
+            {
+                Hexagon.Fill = Brushes.White;
+            }
+            else Hexagon.Fill = bs;
             Hexagon.Stroke = Brushes.Black;
             Hexagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Hexagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
@@ -309,7 +325,11 @@ namespace PlitkaApp
             var Octagon = new Polygon();
             Octagon.Points = new PointCollection() { new Point(0, 100), new Point(0, 200), new Point(70.71,270.71), new Point(170.71, 270.71), new Point(241.42, 200), new Point(241.42, 100), new Point(170.71,29.29), new Point(70.71, 29.29)  };
             SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Octagon.Fill = bs;
+            if (bs.ToString() == "#00FFFFFF")
+            {
+                Octagon.Fill = Brushes.White;
+            }
+            else Octagon.Fill = bs;
             Octagon.Stroke = Brushes.Black;
             Octagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             Octagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
@@ -334,6 +354,11 @@ namespace PlitkaApp
                 p.StrokeThickness = 1;
                 Canv.Children[i] = p as UIElement;
             }
+        }
+
+        private void Delete_Click_1(object sender, RoutedEventArgs e)
+        {
+            Canv.Children.Clear();
         }
     }
 }

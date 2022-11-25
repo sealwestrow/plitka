@@ -57,7 +57,7 @@
         <Button x:Name="Rotation" Width="32" Height="32" Margin="16,255,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
             <Image Width="24" Height="24" Source="Assets/rotate.png" Stretch="Fill"/>
         </Button>
-        <Button x:Name="Delete" Width="32" Height="32" Margin="16,295,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
+        <Button x:Name="Delete" Width="32" Height="32" Margin="16,295,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444" Click="Delete_Click_1">
             Delete
         </Button>
         <Button x:Name="Group" Width="32" Height="32" Margin="16,335,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
@@ -69,25 +69,11 @@
         <Button x:Name="Color" Width="32" Height="32" Margin="16,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
             <syncfusion:ColorPicker Name="colorPicker" Height="22" Width="22"/>
         </Button>
-
-
-
-        <TabControl HorizontalAlignment="Stretch" Margin="64,0,0,0">
-            <TabItem Height="43" Width="110">
-                <TabItem.Header>
-                    <Label Width="71" HorizontalContentAlignment="Left" Padding="0" HorizontalAlignment="Left" Margin="-20,0,0,0">Вкладка 1</Label>
-                </TabItem.Header>
-                <Canvas x:Name="Canv" MouseLeftButtonDown="OnCanvasClick" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                </Canvas>
-            </TabItem>
-            <TabItem Height="43" Width="110">
-                <TabItem.Header>
-                    <Label Height="43" Width="90" Margin="-18,-1,0,0" Padding="7,14,0,0">Вкладка 2</Label>
-                </TabItem.Header>
-            </TabItem>
-        </TabControl>
-
-
+        
+        <Border BorderThickness="1,1,1,1" Margin="64,0,0,0">
+        <Canvas x:Name="Canv" MouseLeftButtonDown="OnCanvasClick" Background="WhiteSmoke" />
+        </Border>
+        
         <Grid Margin="15,384,752,10">
             <Grid.ContextMenu>
                 <ContextMenu Name ="ConMenu" >
