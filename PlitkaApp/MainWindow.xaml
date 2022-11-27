@@ -12,7 +12,7 @@
         <Menu Height="46" Width="64" VerticalAlignment="Top" HorizontalAlignment="Left">
             <MenuItem Header="Файл" Height="46" Width="64" Padding="16, 0, 0, 0" Background="#3D3D3D" Foreground="White" BorderThickness="0">
                 <MenuItem Header="New Project" Background="#232323"></MenuItem>
-                <MenuItem Header="Open Project" Background="#232323"></MenuItem>
+                <MenuItem Header="Open Project" Click="Open_Click" Background="#232323"></MenuItem>
                 <MenuItem Header="Save" Click="Save_Click" Background="#232323"></MenuItem>
                 <MenuItem Header="Exit" Background="#232323"></MenuItem>
             </MenuItem>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Syncfusion.Windows.Shared.Resources;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -262,17 +263,50 @@ namespace PlitkaApp
                 }
             }
         }
-        //private void Open_Click(object sender, RoutedEventArgs e)
-        //{
-        //    SaveFileDialog sfd = new SaveFileDialog();
-        //    if (sfd.ShowDialog() == true)
-        //    {
-        //        if (sfd.FileName != "")
-        //        {
-                    
-        //        }
-        //    }
-        //}
+        private void Open_Click(object sender, RoutedEventArgs e)
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            if (ofd.ShowDialog() == true)
+            {
+                if (ofd.FileName != "")
+                {
+                    using (var sr = new StreamReader(ofd.FileName))
+                    {
+                        string line;
+                       
+                        SolidColorBrush bs =Brushes.White;
+                        while ((line = sr.ReadLine())!=null)
+                        {
+                            var points = new PointCollection();
+                            var str = line.Split(';');
+                            for (int i = 0; i < str.Length-1; i++)
+                            {
+                                var p = str[i].Split(' ');
+                                points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
+                            }
+                            bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length-1]));
+
+                            var polygon = new Polygon();
+                            polygon.Points = points;
+                            polygon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
+                            polygon.Stroke = Brushes.Black;
+                            polygon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
+                            polygon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
+                            polygon.MouseMove += FF_MouseMove;
+                            polygon.MouseRightButtonDown += OnMouseRightButtonDown;
+
+                            Canv.Children.Add(polygon);
+                            Canvas.SetLeft(polygon, 1);
+                            Canvas.SetTop(polygon, 1);
+
+                            polygon.ContextMenu = ConMenu;
+                            polygon.RenderTransformOrigin = new Point(0.5, 0.5);
+                        }
+                        
+                    }
+                }
+            }
+        }
 
         private static void ToImageSource(Canvas canvas, string filename)
         {
