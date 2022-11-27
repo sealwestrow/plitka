@@ -34,6 +34,18 @@ namespace PlitkaApp
             MessageBox.Show("Hello");
         }
 
+        private void VisualDeselect()
+        {
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var UIElement = (Polygon)Canv.Children[i];
+                UIElement.StrokeThickness = 1;
+                Canv.Children[i] = UIElement;
+            }
+        }
+
+        SelectionGroup SelectionGroup = new SelectionGroup();
+
         #region Функция перемещения элементов
 
         int countZ = 0;
@@ -48,53 +60,40 @@ namespace PlitkaApp
             FrameworkElement ffElement = (FrameworkElement)sender;
 
             Grid.SetZIndex(ffElement, countZ);
-
-
+            if (SelectionGroup.Items.Count == 0)
+                SelectionGroup.Add((Polygon)ffElement);
             posCursor = e.MouseDevice.GetPosition(this);
             e.MouseDevice.Capture(ffElement);
         }
 
         private void FF_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_canMove == true)
+            if (_canMove == true && SelectionGroup.Items.Count > 0)
             {
-                FrameworkElement ffElement = (FrameworkElement)sender;
-                Polygon poly = (Polygon)sender;
-                var c = Canv;
+                Polygon ffElement = (Polygon)sender;
 
-                var leftPoint = double.MaxValue;
-                var rightPoint = double.MinValue;
-                var topPoint = double.MaxValue;
-                var bottomPoint = double.MinValue;
-                for (int i = 0; i < poly.Points.Count; i++)
-                {
-                    var point = poly.Points[i];
-
-                    if (point.X < leftPoint)
-                        leftPoint = point.X;
-                    if (point.X > rightPoint)
-                        rightPoint = point.X;
-                    if (point.Y < topPoint)
-                        topPoint = point.Y;
-                    if (point.Y > bottomPoint)
-                        bottomPoint = point.Y;
-                }
-
-                bool allowMoving = (leftPoint + 1) > 0 && (rightPoint + 1) < Canv.ActualWidth && (topPoint + 1) > 0 && (bottomPoint + 1) < Canv.ActualHeight;
+                var leftPoint = SelectionGroup.GetLeftPoint();
+                var rightPoint = SelectionGroup.GetRightPoint();
+                var topPoint = SelectionGroup.GetTopPoint();
+                var bottomPoint = SelectionGroup.GetBottomPoint();
 
                 if (e.MouseDevice.Captured == ffElement)
                 {
                     Point p = e.MouseDevice.GetPosition(this);
                     var px = p.X - posCursor.X;
                     var py = p.Y - posCursor.Y;
+                    bool allowMoving = (leftPoint + 1) + px > 0 && (rightPoint + 1) + px < Canv.ActualWidth && (topPoint + 1) + py > 0 && (bottomPoint + 1) + py < Canv.ActualHeight;
 
-                    if ((leftPoint + 1) + px > 0 && (rightPoint + 1) + px < Canv.ActualWidth && (topPoint + 1) + py > 0 && (bottomPoint + 1) + py < Canv.ActualHeight)
+                    if (allowMoving)
                     {
-                        for (int i = 0; i < poly.Points.Count; i++)
+                        foreach (var poly in SelectionGroup.Items)
                         {
-                            poly.Points[i] = new Point(poly.Points[i].X + px, poly.Points[i].Y + py);
+                            for (int i = 0; i < poly.Points.Count; i++)
+                            {
+                                poly.Points[i] = new Point(poly.Points[i].X + px, poly.Points[i].Y + py);
+                            }
+                            posCursor = e.MouseDevice.GetPosition(this);
                         }
-                        posCursor = e.MouseDevice.GetPosition(this);
                     }
                 }
             }
@@ -104,6 +103,7 @@ namespace PlitkaApp
         {
             _canMove = false;
             e.MouseDevice.Capture(null);
+            SelectionGroup.Clear();
         }
 
         #endregion
@@ -113,112 +113,132 @@ namespace PlitkaApp
         {
             Polygon ffElement = (Polygon)sender;
             ffElement.StrokeThickness = 5;
+            if (!SelectionGroup.Contains(ffElement))
+                SelectionGroup.Add(ffElement);
         }
 
         private void CopyF_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            if (mi != null)
+
+            var sb = new StringBuilder();
+
+            foreach (var polygon in SelectionGroup.Items)
             {
-                ContextMenu cm = mi.CommandParameter as ContextMenu;
-                if (cm != null)
+                foreach (var p in polygon.Points)
                 {
-                    var element = cm.PlacementTarget as Polygon;
-                    if (element != null)
-                    {
-                        var newel = new Polygon();
-                        foreach(var p in element.Points)
-                        {
-                            newel.Points.Add(p);
-                        }
-
-                        newel.Fill = element.Fill;
-                        newel.Stroke = Brushes.Black;
-                        newel.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-                        newel.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-                        newel.MouseMove += FF_MouseMove;
-
-                        newel.MouseRightButtonDown += OnMouseRightButtonDown;
-
-
-                        Canv.Children.Add(newel);
-                        Canvas.SetLeft(newel, 1);
-                        Canvas.SetTop(newel, 1);
-
-                        newel.ContextMenu = ConMenu;
-                        newel.RenderTransformOrigin = new Point(0.5, 0.5);
-                    }
+                    sb.Append(String.Format("{0} {1};", p.X, p.Y));
                 }
+                sb.Append(polygon.Fill.ToString());
+                sb.Append('*');
             }
 
-            for (int i = 0; i < Canv.Children.Count; i++)
+            Clipboard.Clear();
+            Clipboard.SetText(sb.ToString());
+
+            //for (int i = 0; i < Canv.Children.Count; i++)
+            //{
+            //    var UIElement = (Polygon)Canv.Children[i];
+            //    UIElement.StrokeThickness = 1;
+            //    Canv.Children[i] = UIElement;
+            //}
+        }
+
+        private void PasteF_Click(object sender, RoutedEventArgs e)
+        {
+            List<string> line = Clipboard.GetText().Split('*').ToList();
+            line.RemoveAt(line.Count - 1);
+            SelectionGroup.Clear();
+            VisualDeselect();
+            foreach (var l in line)
             {
-                var UIElement = (Polygon)Canv.Children[i];
-                UIElement.StrokeThickness = 1;
-                Canv.Children[i] = UIElement;
+                var str = l.Split(';');
+                var points = new PointCollection();
+                for (int i = 0; i < str.Length - 1; i++)
+                {
+                    var p = str[i].Split(' ');
+                    points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
+                }
+                var bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length - 1]));
+
+                var polygon = new Polygon();
+                polygon.Points = points;
+                polygon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
+                polygon.Stroke = Brushes.Black;
+                polygon.StrokeThickness = 5;
+                polygon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
+                polygon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
+                polygon.MouseMove += FF_MouseMove;
+                polygon.MouseRightButtonDown += OnMouseRightButtonDown;
+
+                Canv.Children.Add(polygon);
+                SelectionGroup.Add(polygon);
+                polygon.ContextMenu = ConMenu;
+                polygon.RenderTransformOrigin = new Point(0.5, 0.5);
             }
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            if (mi != null)
+            foreach (var polygon in SelectionGroup.Items)
             {
-                ContextMenu cm = mi.CommandParameter as ContextMenu;
-                if (cm != null)
-                {
-                    var element = cm.PlacementTarget as UIElement;
-                    Canv.Children.Remove(element); 
-
-                }
+                Canv.Children.Remove(polygon);
             }
+
+            SelectionGroup.Clear();
+
             for (int i = 0; i < Canv.Children.Count; i++)
             {
                 var UIElement = (Polygon)Canv.Children[i];
                 UIElement.StrokeThickness = 1;
                 Canv.Children[i] = UIElement;
             }
+            
         }
 
         private void Rotate_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            ContextMenu cm = mi.CommandParameter as ContextMenu;
-            var polygon = cm.PlacementTarget as Polygon;
+            
             double mX = 0;
             double mY = 0;
-            for (int i = 0; i < polygon.Points.Count; i++)
+            int pointCount = 0;
+            foreach (var polygon in SelectionGroup.Items)
             {
-                mX += polygon.Points[i].X;
-                mY += polygon.Points[i].Y;
+                for (int i = 0; i < polygon.Points.Count; i++)
+                {
+                    mX += polygon.Points[i].X;
+                    mY += polygon.Points[i].Y;
+                    pointCount++;
+                }
             }
+            
 
-            mX /= polygon.Points.Count;
-            mY /= polygon.Points.Count;
-
-            for (int i = 0; i < polygon.Points.Count; i++)
+            mX /= pointCount;
+            mY /= pointCount;
+            foreach (var polygon in SelectionGroup.Items)
             {
-                var point = polygon.Points[i];
-                var x = (point.X - mX) * Math.Cos(Math.PI / 2) - (point.Y - mY) * Math.Sin(Math.PI / 2) + mX;
-                var y = (point.X - mX) * Math.Sin(Math.PI / 2) + (point.Y - mY) * Math.Cos(Math.PI / 2) + mY;
-                polygon.Points[i] = new Point(x, y);
+                for (int i = 0; i < polygon.Points.Count; i++)
+                {
+                    var point = polygon.Points[i];
+                    var x = (point.X - mX) * Math.Cos(Math.PI / 2) - (point.Y - mY) * Math.Sin(Math.PI / 2) + mX;
+                    var y = (point.X - mX) * Math.Sin(Math.PI / 2) + (point.Y - mY) * Math.Cos(Math.PI / 2) + mY;
+                    polygon.Points[i] = new Point(x, y);
+                }
             }
-
         }
 
         private void SwapColor_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            ContextMenu cm = mi.CommandParameter as ContextMenu;
-            var polygon = cm.PlacementTarget as Polygon;
-            polygon.Fill = new SolidColorBrush(colorPicker.Color);
-
-            for (int i = 0; i < Canv.Children.Count; i++)
+            foreach (var polygon in SelectionGroup.Items)
             {
-                var UIElement = (Polygon)Canv.Children[i];
-                UIElement.StrokeThickness = 1;
-                Canv.Children[i] = UIElement;
+                polygon.Fill = new SolidColorBrush(colorPicker.Color);
             }
+
+            //for (int i = 0; i < Canv.Children.Count; i++)
+            //{
+            //    var UIElement = (Polygon)Canv.Children[i];
+            //    UIElement.StrokeThickness = 1;
+            //    Canv.Children[i] = UIElement;
+            //}
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
@@ -395,6 +415,7 @@ namespace PlitkaApp
         }
         private void OnCanvasClick(object sender, MouseButtonEventArgs e)
         {
+            //SelectionGroup = new SelectionGroup();
 
             for (int i = 0; i < Canv.Children.Count; i++)
             {
