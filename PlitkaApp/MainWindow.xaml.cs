@@ -180,51 +180,38 @@ namespace PlitkaApp
             }
         }
 
-        double angleUIElement = 90;
         private void Rotate_Click(object sender, RoutedEventArgs e)
         {
             MenuItem mi = sender as MenuItem;
-            if (mi != null)
+            ContextMenu cm = mi.CommandParameter as ContextMenu;
+            var polygon = cm.PlacementTarget as Polygon;
+            double mX = 0;
+            double mY = 0;
+            for (int i = 0; i < polygon.Points.Count; i++)
             {
-                ContextMenu cm = mi.CommandParameter as ContextMenu;
-                if (cm != null)
-                {
-                    var element = cm.PlacementTarget as UIElement;
-                    var rotateRender = new RotateTransform(angleUIElement);
-                    element.RenderTransform = rotateRender; 
-                    angleUIElement += 90;
-
-                }
+                mX += polygon.Points[i].X;
+                mY += polygon.Points[i].Y;
             }
 
-            for (int i = 0; i < Canv.Children.Count; i++)
+            mX /= polygon.Points.Count;
+            mY /= polygon.Points.Count;
+
+            for (int i = 0; i < polygon.Points.Count; i++)
             {
-                var UIElement = (Polygon)Canv.Children[i];
-                UIElement.StrokeThickness = 1;
-                Canv.Children[i] = UIElement;
+                var point = polygon.Points[i];
+                var x = (point.X - mX) * Math.Cos(Math.PI / 2) - (point.Y - mY) * Math.Sin(Math.PI / 2) + mX;
+                var y = (point.X - mX) * Math.Sin(Math.PI / 2) + (point.Y - mY) * Math.Cos(Math.PI / 2) + mY;
+                polygon.Points[i] = new Point(x, y);
             }
+
         }
 
         private void SwapColor_Click(object sender, RoutedEventArgs e)
         {
             MenuItem mi = sender as MenuItem;
-            if (mi != null)
-            {
-                ContextMenu cm = mi.CommandParameter as ContextMenu;
-                if(cm != null)
-                {
-                    var element = cm.PlacementTarget as UIElement;
-                    int indexF = Canv.Children.IndexOf(element);
-
-                    SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-                    Polygon newel = (Polygon)Canv.Children[indexF];
-                    newel.Fill = bs;
-                    newel.Stroke = Brushes.Black; 
-                    Canv.Children.Remove(element);
-                    Canv.Children.Insert(indexF, newel);
-
-                }
-            }
+            ContextMenu cm = mi.CommandParameter as ContextMenu;
+            var polygon = cm.PlacementTarget as Polygon;
+            polygon.Fill = new SolidColorBrush(colorPicker.Color);
 
             for (int i = 0; i < Canv.Children.Count; i++)
             {
