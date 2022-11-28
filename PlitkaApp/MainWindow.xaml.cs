@@ -525,5 +525,10 @@ namespace PlitkaApp
         {
             Canv.Children.Clear();
         }
+
+        private void ExitApp(object sender, RoutedEventArgs e)
+        {
+            Environment.Exit(0);
+        }
     }
 }
