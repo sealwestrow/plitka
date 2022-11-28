@@ -241,6 +241,102 @@ namespace PlitkaApp
             //}
         }
 
+        private void Clone(object sender, RoutedEventArgs e)
+        {
+            var leftPoint = SelectionGroup.GetLeftPoint();
+            var rightPoint = SelectionGroup.GetRightPoint();
+            var topPoint = SelectionGroup.GetTopPoint();
+            var bottomPoint = SelectionGroup.GetBottomPoint();
+
+            //for (int i = 0; i < Canv.Children.Count; i++)
+            //{
+            //    if (!SelectionGroup.Contains((Polygon)Canv.Children[i]))
+            //        Canv.Children.RemoveAt(i);
+            //}
+
+            Canv.Children.Clear();
+
+            var deltaX = SelectionGroup.GetLeftPoint();
+            var deltaY = SelectionGroup.GetTopPoint();
+
+            var polygons = SelectionGroup.Items;
+
+            foreach (var poly in polygons)
+            {
+                for (int i = 0; i < poly.Points.Count; i++)
+                {
+                    var point = poly.Points[i];
+                    point.X -= deltaX;
+                    point.Y -= deltaY;
+                    poly.Points[i] = point;
+                }
+            }
+            
+            deltaX = SelectionGroup.GetRightPoint() - SelectionGroup.GetLeftPoint();
+            deltaY = SelectionGroup.GetBottomPoint() - SelectionGroup.GetTopPoint();
+            var horizontalCount = Canv.ActualWidth / deltaX;
+            var verticalCount = Canv.ActualHeight / deltaY;
+
+            for (int i = 0; i < verticalCount - 1; i++)
+            {
+                for (int j = 0; j < horizontalCount - 1; j++)
+                {
+                    for (int k = 0; k < polygons.Count; k++)
+                    {
+                        Canv.Children.Add(GetChangedPolygon(polygons[k], i, j));
+                    }
+                }
+
+            }
+
+        }
+        
+        private Polygon GetChangedPolygon(Polygon p, int i, int j)
+        {
+            var deltaX = SelectionGroup.GetRightPoint() - SelectionGroup.GetLeftPoint();
+            var deltaY = SelectionGroup.GetBottomPoint() - SelectionGroup.GetTopPoint();
+            var poly = new Polygon();
+            //poly.Points = p.Points;
+            foreach (var point in p.Points)
+            {
+                double X = point.X;
+                double Y = point.Y;
+                poly.Points.Add(new Point(X, Y));
+            }
+            poly.Fill = p.Fill;
+            for (int c = 0; c < poly.Points.Count; c++)
+            {
+                var point = new Point();
+                point.X = poly.Points[c].X + deltaX * j;
+                point.Y = poly.Points[c].Y + deltaY * i;
+                poly.Points[c] = point;
+            }
+            var polygon = new Polygon();
+            polygon.Points = poly.Points;
+            polygon.Fill = poly.Fill;
+            polygon.Stroke = Brushes.Black;
+            polygon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
+            polygon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
+            polygon.MouseMove += FF_MouseMove;
+            polygon.MouseRightButtonDown += OnMouseRightButtonDown;
+            polygon.ContextMenu = ConMenu;
+            polygon.RenderTransformOrigin = new Point(0.5, 0.5);
+            return polygon;
+        }
+
+        private void OnSelectAll(object sender, RoutedEventArgs e)
+        {
+            SelectionGroup.Clear();
+            VisualDeselect();
+            for (int i = 0; i < Canv.Children.Count; i++)
+            {
+                var UIElement = (Polygon)Canv.Children[i];
+                UIElement.StrokeThickness = 5;
+                Canv.Children[i] = UIElement;
+                SelectionGroup.Add(UIElement);
+            }
+        }
+
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog sfd = new SaveFileDialog();

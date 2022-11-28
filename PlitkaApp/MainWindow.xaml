@@ -8,6 +8,11 @@
         mc:Ignorable="d"
         Title="plitka" Height="450" Width="800">
 
+    <Window.CommandBindings>
+        <CommandBinding Command="local:UserCommands.SelectAll" Executed="OnSelectAll" />
+        <CommandBinding Command="local:UserCommands.Delete" Executed="Delete_Click" />
+    </Window.CommandBindings>
+
     <Grid Background="#FFB9B9B9" MouseLeftButtonDown="OnCanvasClick">
         <Menu Height="46" Width="64" VerticalAlignment="Top" HorizontalAlignment="Left">
             <MenuItem Header="Файл" Height="46" Width="64" Padding="16, 0, 0, 0" Background="#3D3D3D" Foreground="White" BorderThickness="0">
@@ -80,6 +85,7 @@
                     <MenuItem Header = "Удалить" Click="Delete_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
                     <MenuItem Header = "Повернуть" Click="Rotate_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"></MenuItem >
                     <MenuItem Header = "Смена цвета" Click="SwapColor_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
+                    <MenuItem Header = "Размножить" Click="Clone" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
                 </ContextMenu>
             </Grid.ContextMenu>
         </Grid>
