@@ -44,21 +44,18 @@ namespace PlitkaApp
             }
         }
 
-        SelectionGroup SelectionGroup = new SelectionGroup();
+        readonly SelectionGroup SelectionGroup = new SelectionGroup();
 
         #region Функция перемещения элементов
 
         int countZ = 0;
         bool _canMove = false;
-        Point _offsetPoint = new Point(0, 0);
         Point posCursor = new Point(0, 0);
         private void FF_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _canMove = true;
             countZ++;
-
             FrameworkElement ffElement = (FrameworkElement)sender;
-
             Grid.SetZIndex(ffElement, countZ);
             if (SelectionGroup.Items.Count == 0)
                 SelectionGroup.Add((Polygon)ffElement);
@@ -71,7 +68,6 @@ namespace PlitkaApp
             if (_canMove == true && SelectionGroup.Items.Count > 0)
             {
                 Polygon ffElement = (Polygon)sender;
-
                 var leftPoint = SelectionGroup.GetLeftPoint();
                 var rightPoint = SelectionGroup.GetRightPoint();
                 var topPoint = SelectionGroup.GetTopPoint();
@@ -83,7 +79,6 @@ namespace PlitkaApp
                     var px = p.X - posCursor.X;
                     var py = p.Y - posCursor.Y;
                     bool allowMoving = (leftPoint + 1) + px > 0 && (rightPoint + 1) + px < Canv.ActualWidth && (topPoint + 1) + py > 0 && (bottomPoint + 1) + py < Canv.ActualHeight;
-
                     if (allowMoving)
                     {
                         foreach (var poly in SelectionGroup.Items)
@@ -119,9 +114,7 @@ namespace PlitkaApp
 
         private void CopyF_Click(object sender, RoutedEventArgs e)
         {
-
             var sb = new StringBuilder();
-
             foreach (var polygon in SelectionGroup.Items)
             {
                 foreach (var p in polygon.Points)
@@ -131,16 +124,8 @@ namespace PlitkaApp
                 sb.Append(polygon.Fill.ToString());
                 sb.Append('*');
             }
-
             Clipboard.Clear();
             Clipboard.SetText(sb.ToString());
-
-            //for (int i = 0; i < Canv.Children.Count; i++)
-            //{
-            //    var UIElement = (Polygon)Canv.Children[i];
-            //    UIElement.StrokeThickness = 1;
-            //    Canv.Children[i] = UIElement;
-            //}
         }
 
         private void PasteF_Click(object sender, RoutedEventArgs e)
@@ -159,21 +144,10 @@ namespace PlitkaApp
                     points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
                 }
                 var bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length - 1]));
-
-                var polygon = new Polygon();
-                polygon.Points = points;
-                polygon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
-                polygon.Stroke = Brushes.Black;
+                var polygon = CreatePolygon(points, bs);
                 polygon.StrokeThickness = 5;
-                polygon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-                polygon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-                polygon.MouseMove += FF_MouseMove;
-                polygon.MouseRightButtonDown += OnMouseRightButtonDown;
-
                 Canv.Children.Add(polygon);
                 SelectionGroup.Add(polygon);
-                polygon.ContextMenu = ConMenu;
-                polygon.RenderTransformOrigin = new Point(0.5, 0.5);
             }
         }
 
@@ -232,33 +206,14 @@ namespace PlitkaApp
             {
                 polygon.Fill = new SolidColorBrush(colorPicker.Color);
             }
-
-            //for (int i = 0; i < Canv.Children.Count; i++)
-            //{
-            //    var UIElement = (Polygon)Canv.Children[i];
-            //    UIElement.StrokeThickness = 1;
-            //    Canv.Children[i] = UIElement;
-            //}
         }
 
         private void Clone(object sender, RoutedEventArgs e)
         {
-            var leftPoint = SelectionGroup.GetLeftPoint();
-            var rightPoint = SelectionGroup.GetRightPoint();
-            var topPoint = SelectionGroup.GetTopPoint();
-            var bottomPoint = SelectionGroup.GetBottomPoint();
-
-            //for (int i = 0; i < Canv.Children.Count; i++)
-            //{
-            //    if (!SelectionGroup.Contains((Polygon)Canv.Children[i]))
-            //        Canv.Children.RemoveAt(i);
-            //}
-
             Canv.Children.Clear();
 
             var deltaX = SelectionGroup.GetLeftPoint();
             var deltaY = SelectionGroup.GetTopPoint();
-
             var polygons = SelectionGroup.Items;
 
             foreach (var poly in polygons)
@@ -271,7 +226,7 @@ namespace PlitkaApp
                     poly.Points[i] = point;
                 }
             }
-            
+
             deltaX = SelectionGroup.GetRightPoint() - SelectionGroup.GetLeftPoint();
             deltaY = SelectionGroup.GetBottomPoint() - SelectionGroup.GetTopPoint();
             var horizontalCount = Canv.ActualWidth / deltaX;
@@ -286,35 +241,16 @@ namespace PlitkaApp
                         Canv.Children.Add(GetChangedPolygon(polygons[k], i, j));
                     }
                 }
-
             }
-
         }
-        
-        private Polygon GetChangedPolygon(Polygon p, int i, int j)
+        private Polygon CreatePolygon(PointCollection pc, Brush b)
         {
-            var deltaX = SelectionGroup.GetRightPoint() - SelectionGroup.GetLeftPoint();
-            var deltaY = SelectionGroup.GetBottomPoint() - SelectionGroup.GetTopPoint();
-            var poly = new Polygon();
-            //poly.Points = p.Points;
-            foreach (var point in p.Points)
+            var polygon = new Polygon
             {
-                double X = point.X;
-                double Y = point.Y;
-                poly.Points.Add(new Point(X, Y));
-            }
-            poly.Fill = p.Fill;
-            for (int c = 0; c < poly.Points.Count; c++)
-            {
-                var point = new Point();
-                point.X = poly.Points[c].X + deltaX * j;
-                point.Y = poly.Points[c].Y + deltaY * i;
-                poly.Points[c] = point;
-            }
-            var polygon = new Polygon();
-            polygon.Points = poly.Points;
-            polygon.Fill = poly.Fill;
-            polygon.Stroke = Brushes.Black;
+                Points = pc,
+                Fill = b.ToString() == "#00FFFFFF" ? Brushes.White : b,
+                Stroke = Brushes.Black
+            };
             polygon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
             polygon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
             polygon.MouseMove += FF_MouseMove;
@@ -322,6 +258,38 @@ namespace PlitkaApp
             polygon.ContextMenu = ConMenu;
             polygon.RenderTransformOrigin = new Point(0.5, 0.5);
             return polygon;
+        }
+        private void AddPolygon(Polygon p)
+        {
+            Canv.Children.Add(p);
+            Canvas.SetLeft(p, 1);
+            Canvas.SetTop(p, 1);
+        }
+        private Polygon GetChangedPolygon(Polygon p, int i, int j)
+        {
+            var deltaX = SelectionGroup.GetRightPoint() - SelectionGroup.GetLeftPoint();
+            var deltaY = SelectionGroup.GetBottomPoint() - SelectionGroup.GetTopPoint();
+            var poly = new Polygon();
+
+            foreach (var point in p.Points)
+            {
+                double X = point.X;
+                double Y = point.Y;
+                poly.Points.Add(new Point(X, Y));
+            }
+
+            poly.Fill = p.Fill;
+
+            for (int c = 0; c < poly.Points.Count; c++)
+            {
+                var point = new Point
+                {
+                    X = poly.Points[c].X + deltaX * j,
+                    Y = poly.Points[c].Y + deltaY * i
+                };
+                poly.Points[c] = point;
+            }
+            return CreatePolygon(poly.Points, poly.Fill);
         }
 
         private void OnSelectAll(object sender, RoutedEventArgs e)
@@ -345,12 +313,12 @@ namespace PlitkaApp
                 if(sfd.FileName != "")
                 {
                     ToImageSource(Canv, sfd.FileName + ".png");
-                    ToTextSource(Canv, sfd.FileName + ".txt");
+                    ToTextSource(sfd.FileName + ".txt");
                 }
             }
         }
 
-        private void ToTextSource(Canvas c, string fileName)
+        private void ToTextSource(string fileName)
         {
             using (var sw = new StreamWriter(fileName))
             {
@@ -388,24 +356,9 @@ namespace PlitkaApp
                                 points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
                             }
                             bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length-1]));
-
-                            var polygon = new Polygon();
-                            polygon.Points = points;
-                            polygon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
-                            polygon.Stroke = Brushes.Black;
-                            polygon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-                            polygon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-                            polygon.MouseMove += FF_MouseMove;
-                            polygon.MouseRightButtonDown += OnMouseRightButtonDown;
-
-                            Canv.Children.Add(polygon);
-                            Canvas.SetLeft(polygon, 1);
-                            Canvas.SetTop(polygon, 1);
-
-                            polygon.ContextMenu = ConMenu;
-                            polygon.RenderTransformOrigin = new Point(0.5, 0.5);
+                            var polygon = CreatePolygon(points, bs);
+                            AddPolygon(polygon);
                         }
-                        
                     }
                 }
             }
@@ -427,92 +380,37 @@ namespace PlitkaApp
 
         private void Rectangle_Click(object sender, RoutedEventArgs e)
         {
-            var Rectangle = new Polygon();
-            Rectangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100) };
-            SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Rectangle.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
-            Rectangle.Stroke = Brushes.Black;
-            Rectangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-            Rectangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-            Rectangle.MouseMove += FF_MouseMove;
-            Rectangle.MouseRightButtonDown += OnMouseRightButtonDown;
-
-            Canv.Children.Add(Rectangle);
-            Canvas.SetLeft(Rectangle, 1);
-            Canvas.SetTop(Rectangle, 1);
-
-            Rectangle.ContextMenu = ConMenu;
-            Rectangle.RenderTransformOrigin = new Point(0.5, 0.5);
+            var points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(100, 100), new Point(0, 100) };
+            var bs = new SolidColorBrush(colorPicker.Color);
+            var rectangle = CreatePolygon(points, bs);
+            AddPolygon(rectangle);
         }
        
         private void Triangle_Click(object sender, RoutedEventArgs e)
         {
-            var Triangle = new Polygon();
-            Triangle.Points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(50, 86.6) };
-            SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Triangle.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
-            Triangle.Stroke = Brushes.Black;
-            Triangle.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-            Triangle.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-            Triangle.MouseMove += FF_MouseMove;
-
-            Triangle.MouseRightButtonDown += OnMouseRightButtonDown;
-
-            Canv.Children.Add(Triangle);
-            Canvas.SetLeft(Triangle, 1);
-            Canvas.SetTop(Triangle, 1);
-
-            Triangle.ContextMenu = ConMenu;
-            Triangle.RenderTransformOrigin = new Point(0.5, 0.5);
+            var points = new PointCollection() { new Point(0, 0), new Point(100, 0), new Point(50, 86.6) };
+            var bs = new SolidColorBrush(colorPicker.Color);
+            var triangle = CreatePolygon(points, bs);
+            AddPolygon(triangle);
         }
 
         private void Hexagon_Click(object sender, RoutedEventArgs e)
         {
-            var Hexagon = new Polygon();
-            Hexagon.Points = new PointCollection() { new Point(0,50), new Point(0, 150), new Point(86.6,200), new Point(173.21,150), new Point(173.21, 50), new Point(86.6,0) };
-            SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Hexagon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
-            Hexagon.Stroke = Brushes.Black;
-            Hexagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-            Hexagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-            Hexagon.MouseMove += FF_MouseMove;
-
-            Hexagon.MouseRightButtonDown += OnMouseRightButtonDown;
-
-
-            Canv.Children.Add(Hexagon);
-            Canvas.SetLeft(Hexagon, 1);
-            Canvas.SetTop(Hexagon, 1);
-
-            Hexagon.ContextMenu = ConMenu;
-            Hexagon.RenderTransformOrigin = new Point(0.5, 0.5);
+            var points = new PointCollection() { new Point(0,50), new Point(0, 150), new Point(86.6,200), new Point(173.21,150), new Point(173.21, 50), new Point(86.6,0) };
+            var bs = new SolidColorBrush(colorPicker.Color);
+            var hexagon = CreatePolygon(points, bs);
+            AddPolygon(hexagon);
         }
 
         private void Octagon_Click(object sender, RoutedEventArgs e)
         {
-            var Octagon = new Polygon();
-            Octagon.Points = new PointCollection() { new Point(0, 100), new Point(0, 200), new Point(70.71,270.71), new Point(170.71, 270.71), new Point(241.42, 200), new Point(241.42, 100), new Point(170.71,29.29), new Point(70.71, 29.29)  };
-            SolidColorBrush bs = new SolidColorBrush(colorPicker.Color);
-            Octagon.Fill = bs.ToString() == "#00FFFFFF" ? Brushes.White : bs;
-            Octagon.Stroke = Brushes.Black;
-            Octagon.MouseLeftButtonDown += FF_MouseLeftButtonDown;
-            Octagon.MouseLeftButtonUp += FF_MouseLeftButtonUp;
-            Octagon.MouseMove += FF_MouseMove;
-
-            Octagon.MouseRightButtonDown += OnMouseRightButtonDown;
-
-
-            Canv.Children.Add(Octagon);
-            Canvas.SetLeft(Octagon, 1);
-            Canvas.SetTop(Octagon, 1);
-
-            Octagon.ContextMenu = ConMenu;
-            Octagon.RenderTransformOrigin = new Point(0.5, 0.5);
+            var points = new PointCollection() { new Point(0, 100), new Point(0, 200), new Point(70.71,270.71), new Point(170.71, 270.71), new Point(241.42, 200), new Point(241.42, 100), new Point(170.71,29.29), new Point(70.71, 29.29)  };
+            var bs = new SolidColorBrush(colorPicker.Color);
+            var octagon = CreatePolygon(points, bs);
+            AddPolygon(octagon);
         }
         private void OnCanvasClick(object sender, MouseButtonEventArgs e)
         {
-            //SelectionGroup = new SelectionGroup();
-
             for (int i = 0; i < Canv.Children.Count; i++)
             {
                 var p=  Canv.Children[i] as Polygon;
