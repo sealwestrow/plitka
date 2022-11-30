@@ -6,7 +6,7 @@
         xmlns:syncfusion="http://schemas.syncfusion.com/wpf"
         xmlns:local="clr-namespace:PlitkaApp"
         mc:Ignorable="d"
-        Title="plitka" Height="450" Width="800">
+        Title="TileApp" Icon="Assets/Icon.ico" Height="450" Width="800">
 
     <Window.CommandBindings>
         <CommandBinding Command="local:UserCommands.SelectAll" Executed="OnSelectAll" />
