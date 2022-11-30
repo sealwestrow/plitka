@@ -134,21 +134,29 @@ namespace PlitkaApp
             line.RemoveAt(line.Count - 1);
             SelectionGroup.Clear();
             VisualDeselect();
-            foreach (var l in line)
+            try
             {
-                var str = l.Split(';');
-                var points = new PointCollection();
-                for (int i = 0; i < str.Length - 1; i++)
+                foreach (var l in line)
                 {
-                    var p = str[i].Split(' ');
-                    points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
+                    var str = l.Split(';');
+                    var points = new PointCollection();
+                    for (int i = 0; i < str.Length - 1; i++)
+                    {
+                        var p = str[i].Split(' ');
+                        points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
+                    }
+                    var bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length - 1]));
+                    var polygon = CreatePolygon(points, bs);
+                    polygon.StrokeThickness = 5;
+                    Canv.Children.Add(polygon);
+                    SelectionGroup.Add(polygon);
                 }
-                var bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length - 1]));
-                var polygon = CreatePolygon(points, bs);
-                polygon.StrokeThickness = 5;
-                Canv.Children.Add(polygon);
-                SelectionGroup.Add(polygon);
             }
+            catch
+            {
+                MessageBox.Show("Некорректные данные в буфере обмена.");
+            }
+            
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
