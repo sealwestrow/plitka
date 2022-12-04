@@ -150,6 +150,8 @@ namespace PlitkaApp
                     polygon.StrokeThickness = 5;
                     Canv.Children.Add(polygon);
                     SelectionGroup.Add(polygon);
+                    countZ++;
+                    Grid.SetZIndex(polygon, countZ);
                 }
             }
             catch
