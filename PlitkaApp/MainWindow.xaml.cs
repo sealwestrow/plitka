@@ -355,32 +355,40 @@ namespace PlitkaApp
         }
         private void Open_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog ofd = new OpenFileDialog();
-            if (ofd.ShowDialog() == true)
+            try
             {
-                if (ofd.FileName != "")
+                OpenFileDialog ofd = new OpenFileDialog();
+                if (ofd.ShowDialog() == true)
                 {
-                    using (var sr = new StreamReader(ofd.FileName))
+                    if (ofd.FileName != "")
                     {
-                        string line;
-                       
-                        SolidColorBrush bs =Brushes.White;
-                        while ((line = sr.ReadLine())!=null)
+                        using (var sr = new StreamReader(ofd.FileName))
                         {
-                            var points = new PointCollection();
-                            var str = line.Split(';');
-                            for (int i = 0; i < str.Length-1; i++)
+                            string line;
+
+                            SolidColorBrush bs = Brushes.White;
+                            while ((line = sr.ReadLine()) != null)
                             {
-                                var p = str[i].Split(' ');
-                                points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
+                                var points = new PointCollection();
+                                var str = line.Split(';');
+                                for (int i = 0; i < str.Length - 1; i++)
+                                {
+                                    var p = str[i].Split(' ');
+                                    points.Add(new Point(double.Parse(p[0]), double.Parse(p[1])));
+                                }
+                                bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length - 1]));
+                                var polygon = CreatePolygon(points, bs);
+                                AddPolygon(polygon);
                             }
-                            bs = (SolidColorBrush)(new BrushConverter().ConvertFrom(str[str.Length-1]));
-                            var polygon = CreatePolygon(points, bs);
-                            AddPolygon(polygon);
                         }
                     }
                 }
             }
+            catch
+            {
+                MessageBox.Show("Ошибка при открытии файла");
+            }
+            
         }
 
         private static void ToImageSource(Canvas canvas, string filename)

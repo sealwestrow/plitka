@@ -60,7 +60,7 @@
         </Button>
 
         <Button x:Name="Delete" Width="32" Height="32" Margin="16,255,0,0"  HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444" Click="Delete_Click_1">
-            Delete
+            <Image Width="24" Height="24" Source="Assets/trash.png" Stretch="Fill"/>
         </Button>
 
         <Button x:Name="Color" Width="32" Height="32" Margin="16,55,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Background="#FF444444" BorderBrush="#FF444444">
