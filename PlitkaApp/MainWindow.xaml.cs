@@ -261,6 +261,7 @@ namespace PlitkaApp
                     }
                 }
             }
+            SelectionGroup.Clear();
         }
         private Polygon CreatePolygon(PointCollection pc, Brush b)
         {
