@@ -177,9 +177,18 @@ namespace PlitkaApp
             
         }
 
-        private void Rotate_Click(object sender, RoutedEventArgs e)
+        private void Rotate_90_Click(object sender, RoutedEventArgs e)
         {
-            
+            Rotate(Math.PI / 2);
+        }
+
+        private void Rotate_45_Click(object sender, RoutedEventArgs e)
+        {
+            Rotate(Math.PI / 4);
+        }
+
+        private void Rotate(double angle)
+        {
             double mX = 0;
             double mY = 0;
             int pointCount = 0;
@@ -192,7 +201,7 @@ namespace PlitkaApp
                     pointCount++;
                 }
             }
-            
+
 
             mX /= pointCount;
             mY /= pointCount;
@@ -201,8 +210,8 @@ namespace PlitkaApp
                 for (int i = 0; i < polygon.Points.Count; i++)
                 {
                     var point = polygon.Points[i];
-                    var x = (point.X - mX) * Math.Cos(Math.PI / 2) - (point.Y - mY) * Math.Sin(Math.PI / 2) + mX;
-                    var y = (point.X - mX) * Math.Sin(Math.PI / 2) + (point.Y - mY) * Math.Cos(Math.PI / 2) + mY;
+                    var x = (point.X - mX) * Math.Cos(angle) - (point.Y - mY) * Math.Sin(angle) + mX;
+                    var y = (point.X - mX) * Math.Sin(angle) + (point.Y - mY) * Math.Cos(angle) + mY;
                     polygon.Points[i] = new Point(x, y);
                 }
             }

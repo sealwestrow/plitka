@@ -82,7 +82,8 @@
                 <ContextMenu Name ="ConMenu" >
                     <MenuItem Header = "Копировать" Click="CopyF_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
                     <MenuItem Header = "Удалить" Click="Delete_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
-                    <MenuItem Header = "Повернуть" Click="Rotate_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"></MenuItem >
+                    <MenuItem Header = "Повернуть на 45°" Click="Rotate_45_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"></MenuItem >
+                    <MenuItem Header = "Повернуть на 90°" Click="Rotate_90_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}"></MenuItem >
                     <MenuItem Header = "Смена цвета" Click="SwapColor_Click" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
                     <MenuItem Header = "Размножить" Click="Clone" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=Parent}" ></MenuItem >
                 </ContextMenu>
